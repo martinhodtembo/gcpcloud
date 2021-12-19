@@ -34,7 +34,6 @@ resource "google_compute_address" "static" {
   region = "${var.region}"
   depends_on = [ google_compute_firewall.firewall ]
 }
-
 resource "google_compute_disk" "disk" {
     name  = "my-disk"
     image = "centos-cloud/centos-8"
