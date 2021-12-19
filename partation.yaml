@@ -1,0 +1,31 @@
+- hosts: localhost
+  remote_user: root
+  become: yes
+  tasks:
+- name: "Create partitions"    
+  block:   
+    - name: install parted
+      package:
+        name: parted
+        state: present 
+        
+    - name: "Read device information /dev/sda"
+      parted: 
+        device: "/dev/sda"
+        unit: MiB
+      register: device_info
+    
+    - name: "Add new partition /dev/sda2"
+      parted: 
+        device: "/dev/sda"
+        number: "2"
+        part_type: primary
+        flags: [ lvm ]
+        state: present
+        part_end: "100%"
+        part_start: "{{ device_info.partitions[0].end + 1}}MiB" 
+        
+    - name: "Add device to exising volume group {{ volumeGroup }}."
+      lvg:
+        vg: "{{ volumeGroup }}"
+        pvs: "/dev/sda1,/dev/sda2"
